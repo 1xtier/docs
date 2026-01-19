@@ -1,0 +1,26 @@
+site_name: Docs pages 
+site_url: https://mydomain.org/mysite
+theme:
+  name: material
+  font:
+    text: Merriweather Sans
+    code: Red Hat Mono
+  features:
+    - navigation.footer
+  palette:
+    # Light Mode
+    - scheme: default
+      toogle:
+        icon: material/weather-night
+        name: Light mode
+      primary: blue 
+      accent: deep orange
+
+   # Dark Mode
+    - scheme: slate 
+      toogle:
+        icon: material/weather-sunny
+        name: Dark mode
+      primary: green
+      accent: deep purple
+  
