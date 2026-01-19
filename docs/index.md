@@ -1,17 +1,9 @@
 # Welcome to MkDocs
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Добро пожаловать в открытую базу документации. 
+Часто документация пишется на английском языке, что доставляет некоторое неудобство тем, кто не очень хорошо знает английский язык. И я часто пользовался переводчиком, и второе неудобство — это хранение или поиск ссылок на документацию. Посидев, подумал, решил сделать на GitHub Pages русскоязычную документацию по различным инструментам IaC-подхода.
 
-## Commands
+## Помощь
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+Если у вас есть желание помочь, то можете склонировать репозиторий, ветку main, и прислать пул-реквест с переводом документации к инструменту.
 
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
