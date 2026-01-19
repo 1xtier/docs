@@ -1,274 +1,274 @@
-# LXC Guest Resource
+# LXC Resource
 
-Этот ресурс управляет контейнером LXC.
+This resource creates and manages a Proxmox LXC container.
 
-Чтобы начать работу, это минимальный пример:
+## Example Usage
+
+### Basic example
 
 ```hcl
-resource "proxmox_lxc_guest" "minimal-example" {
-    name         = "minimal-example"
-    power_state  = "running"
-    node         = "pve-1"
-    unprivileged = true
-    password     = "yourpassword"
-    template {
-        file    = "alpine-3.22-default_20250617_amd64.tar.xz"
-        storage = "local"
-    }
-    cpu {
-        cores = 1
-    }
-    features {
-        unprivileged {
-            nesting = true
-        }
-    }
-    memory = 1024
-    swap   = 512
-    pool   = "my-pool"
-    root_mount {
-        size    = "4G"
-        storage = "local-lvm"
-    }
-    network {
-        id = 0
-        name = "eth0"
-        bridge = "vmbr0"
-        ipv4_address = "192.168.1.100/24"
-        ipv4_gateway = "192.168.1.1"
-    }
-    startup_shutdown {}
+resource "proxmox_lxc" "basic" {
+  target_node  = "pve"
+  hostname     = "lxc-basic"
+  ostemplate   = "local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz"
+  password     = "BasicLXCContainer"
+  unprivileged = true
+
+  // Terraform will crash without rootfs defined
+  rootfs {
+    storage = "local-zfs"
+    size    = "8G"
+  }
+
+  network {
+    name   = "eth0"
+    bridge = "vmbr0"
+    ip     = "dhcp"
+  }
 }
 ```
 
-## Ссылка на аргумент
+### Multiple mount points
 
-| Argument            | Type    | Default Value            | Description |
-|:--------------------|---------|--------------------------|:------------|
-| `clone`             | `nested`|                          | **Принудительное восстановление**: Конфигурация клонирования, см. [Clone Reference](#clone-reference).|
-| `cpu_architecture`  | `string`|                          | **Вычисляемый**: Архитектура центрального процессора.|
-| `cpu`               | `nested`|                          | Конфигурация процессора, смотрите в разделе [CPU Reference](#cpu-reference).|
-| `description`       | `string`| `"Managed by Terraform."`| Описание гостевого контейнера.|
-| `dns`               | `nested`|                          | Конфигурация DNS, смотрите в разделе [DNS Reference](#dns-reference).|
-| `features`          | `nested`|                          | Конфигурация функций, смотрите в разделе [Features Reference](#features-reference).|
-| `guest_id`          | `int`   |                          | **Принудительно восстанавливает**, **Вычисляется**: Числовой идентификатор гостевого контейнера, также известный как "vmid". Если он не указан, идентификатор будет присвоен автоматически.|
-| `memory`            | `int`   | `512`                    | Объем памяти, выделяемой гостю, в мегабайтах.|
-| `mount`             | `array` |                          | Хранилища монтируются как отдельные элементы массива, см. [Mount Reference](#mount-reference).|
-| `mounts`            | `nested`|                          | Монтирование хранилища, настроенное как вложенные вложенные элементы, см. [Mounts Reference](#mounts-reference).|
-| `name`              | `string`|                          | **Обязательно**: название контейнера.|
-| `network`           | `array` |                          | Сетевые интерфейсы, сконфигурированные как отдельные элементы массива, см. [Network Reference](#network-reference).|
-| `networks`          | `nested`|                          | Сетевые интерфейсы, настроенные как вложенные подпункты, см. [Networks Reference](#networks-reference).|
-| `os`                | `string`|                          | **Вычислено**: Название операционной системы внутри гостевой системы.|
-| `password`          | `string`|                          | **Принудительное восстановление**, **Конфиденциально**: Пароль пользователя root внутри гостевого контейнера.|
-| `pool`              | `string`|                          | Имя пула, членом которого должен быть гостевой контейнер.|
-| `power_state`       | `string`| `"running"`              | Состояние питания гостя может быть `запущено" или `остановлено".|
-| `privileged`        | `bool`  |                          | **Forces Recreation**: Является ли гость привилегированным или непривилегированным. Может быть только `true" или "unset". Взаимоисключающие значения "непривилегированный".|
-| `root_mount`        | `nested`|                          | **Требуется**: Настройка корневого/загрузочного диска/диска для установки в гостевой контейнер. **Примечание:** Размер может быть только увеличен, но не уменьшен.|
-| `ssh_public_key`    | `string`|                          | **Forces Recreation** Открытый SSH-ключ пользователя root внутри гостевого контейнера.|
-| `start_at_node_boot`| `bool`  | `false`                  | Должен ли гостевой сервер запускаться автоматически при загрузке узла Proxmox.|
-| `startup_shutdown`  | `nested`|                          | Настройка запуска и выключения гостевой системы приведена в разделе [Startup and Shutdown Reference](#startup-and-shutdown-reference).|
-| `swap`              | `int`   | `512`                    | Объем виртуальной памяти гостя, который будет сопоставлен с пространством подкачки на узле PVE.|
-| `tags`              | `list`  | `[]`                     | Список тегов, которые нужно присвоить гостевому контейнеру.|
-| `target_node`       | `string`|                          | Один узел, на котором должен находиться гость. Если гость находится на другом узле, он будет перенесен на этот.|
-| `target_nodes`      | `array` |                          | Список узлов, на которых должен находиться гость. Если гость не находится ни на одном из этих узлов, он будет перенесен на один из них.|
-| `unprivileged`      | `bool`  |                          | **Forces Recreation**: Если гость является непривилегированным или привилегированным. Может быть только "true" или "unset". Взаимоисключающие с `privileged`.|
+-> By specifying `local-lvm:12` for the `mountpoint.storage` attribute in the first `mountpoint` block below, a volume
+will be automatically created for the LXC container. For more information on this behaviour,
+see [Storage Backed Mount Points](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points).
 
-### Clone Reference
+```hcl
+resource "proxmox_lxc" "multiple_mountpoints" {
+  target_node  = "pve"
+  hostname     = "lxc-multiple-mountpoints"
+  ostemplate   = "local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz"
+  unprivileged = true
+  ostype       = "ubuntu"
 
-Поле "клонировать" используется для настройки параметров клонирования.
-**Его можно указать только один раз.**
+  ssh_public_keys = <<-EOT
+    ssh-rsa <public_key_1> user@example.com
+    ssh-ed25519 <public_key_2> user@example.com
+  EOT
 
-| Argument       | Type    | Default Value | Description |
-|:---------------|---------|---------------|:------------|
-| `id`           | `int`   |               | **Forces Recreation**: Числовой идентификатор исходного контейнера для клонирования.|
-| `linked`       | `bool`  | `false`       | **Forces Recreation**: Независимо от того, должен ли клон быть связанным.|
-| `name`         | `string`|               | **Forces Recreation**: Имя исходного контейнера для клонирования. Любой `id` или `name` должно быть указано конкретно.|
+  // Terraform will crash without rootfs defined
+  rootfs {
+    storage = "local-zfs"
+    size    = "8G"
+  }
 
-### CPU Reference
+  // Storage Backed Mount Point
+  mountpoint {
+    key     = "0"
+    slot    = 0
+    storage = "local-lvm"
+    mp      = "/mnt/container/storage-backed-mount-point"
+    size    = "12G"
+  }
 
-Поле `cpu` поле используется для настройки параметров процессора. Его можно указать только один раз.
+  // Bind Mount Point
+  mountpoint {
+    key     = "1"
+    slot    = 1
+    storage = "/srv/host/bind-mount-point"
+    // Without 'volume' defined, Proxmox will try to create a volume with
+    // the value of 'storage' + : + 'size' (without the trailing G) - e.g.
+    // "/srv/host/bind-mount-point:256".
+    // This behaviour looks to be caused by a bug in the provider.
+    volume  = "/srv/host/bind-mount-point"
+    mp      = "/mnt/container/bind-mount-point"
+    size    = "256G"
+  }
 
-| Argument | Type | Default Value | Description |
-|:---------|------|---------------|:------------|
-| `cores`  | `int`| `0`           | Количество процессорных ядер гостевого компьютера, `0` означает неограниченное.|
-| `limit`  | `int`| `0`           | Ограничение по количеству процессорных ядер гостевых процессоров, "0" означает неограниченное количество.|
-| `units`  | `int`| `100`         | Процессорные блоки гостя.|
+  // Device Mount Point
+  mountpoint {
+    key     = "2"
+    slot    = 2
+    storage = "/dev/sdg"
+    volume  = "/dev/sdg"
+    mp      = "/mnt/container/device-mount-point"
+    size    = "32G"
+  }
 
-### DNS Reference
+  network {
+    name   = "eth0"
+    bridge = "vmbr0"
+    ip     = "dhcp"
+    ip6    = "dhcp"
+  }
+}
+```
 
-Поле `dns` используется для настройки параметров DNS. Его можно указать только один раз.
+### LXC with advanced features enabled
 
-| Argument      | Type    | Default Value | Description |
-|:--------------|---------|---------------|:------------|
-| `searchdomain`| `string`| `""`          | DNS-поисковый домен гостя наследует конфигурацию узла PVE, когда он пуст.|
-| `nameserver`  | `array` | `[]`          | DNS-сервер имен гостя наследует конфигурацию узла PVE, когда он пуст.|
+```hcl
+resource "proxmox_lxc" "advanced_features" {
+  target_node  = "pve"
+  hostname     = "lxc-advanced-features"
+  ostemplate   = "local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz"
+  unprivileged = true
 
-### Features Reference
+  ssh_public_keys = <<-EOT
+    ssh-rsa <public_key_1> user@example.com
+    ssh-ed25519 <public_key_2> user@example.com
+  EOT
 
-The `features` field is used to configure the feature settings. It may only be specified once.
+  features {
+    fuse    = true
+    nesting = true
+    mount   = "nfs;cifs"
+  }
 
-| Argument        | Type    | Default Value | Description |
-|:----------------|---------|---------------|:------------|
-| `privileged`    | `nested`|               | Privileged features configuration, see [Features Privileged Reference](#features-privileged-reference).|
-| `unprivileged`  | `nested`|               | Unprivileged features configuration, see [Features Unprivileged Reference](#features-unprivileged-reference).|
+  // Terraform will crash without rootfs defined
+  rootfs {
+    storage = "local-zfs"
+    size    = "8G"
+  }
 
-#### Features Privileged Reference
+  // NFS share mounted on host
+  mountpoint {
+    slot    = "0"
+    storage = "/mnt/host/nfs"
+    mp      = "/mnt/container/nfs"
+    size    = "250G"
+  }
 
-The `features.privileged` field is used to configure the privileged feature settings. It may only be specified once. `features.privileged` is mutually exclusive with `features.unprivileged`. Top-level `privileged = true` is required to use this.
+  network {
+    name   = "eth0"
+    bridge = "vmbr0"
+    ip     = "10.0.0.2/24"
+    ip6    = "auto"
+  }
+}
+```
 
-| Argument             | Type   | Default Value | Description |
-|:---------------------|--------|---------------|:------------|
-| `create_device_nodes`| `bool` | `false`       | Whether create device nodes should be enabled.|
-| `fuse`               | `bool` | `false`       | Whether FUSE should be enabled.|
-| `nesting`            | `bool` | `false`       | Whether nesting should be enabled.|
-| `nfs`                | `bool` | `false`       | Whether NFS should be enabled.|
-| `smb`                | `bool` | `false`       | Whether SMB should be enabled.|
+### Clone basic example
 
-#### Features Unprivileged Reference
+```hcl
+resource "proxmox_lxc" "basic" {
+  target_node = "pve"
+  hostname    = "lxc-clone"
+  #id of lxc container to clone
+  clone       = "8001"
+}
+```
 
-The `features.unprivileged` field is used to configure the unprivileged feature settings. It may only be specified once. `features.unprivileged` is mutually exclusive with `features.privileged`. Top-level `unprivileged = true` is required to use this.
+## Argument Reference
 
-| Argument             | Type   | Default Value | Description |
-|:---------------------|--------|---------------|:------------|
-| `create_device_nodes`| `bool` | `false`       | Whether create device nodes should be enabled.|
-| `fuse`               | `bool` | `false`       | Whether FUSE should be enabled.|
-| `keyctl`             | `bool` | `false`       | Whether keyctl should be enabled.|
-| `nesting`            | `boIf the guest is unprivileged or privileged. Can only be `true` or unset. Mutually exclusive withol` | `false`       | Whether nesting should be enabled.|
+### Required
 
-### Mount Reference
+The following arguments must be defined when using this resource:
 
-The `mount` field is used to configure the mount settings. It may be specified multiple times, each instance requires a unique `slot` value. `mount` is mutually exclusive with `mounts`.
+* `target_node` - A string containing the cluster node name.
 
-| Argument          | Type    | Default Value | Description |
-|:------------------|---------|---------------|:------------|
-| `acl`             | `string`| `default`     | Mount acl configuration, can be one of `"true"`, `"false"`, `"default"`. Requires `type` = `data`.|
-| `backup`          | `bool`  | `true`        | Wheter the mount will be included in backup tasks.|
-| `guest_path`      | `string`|               | **Required**: Absolute path of the mount point inside the container guest, example: `"/mnt/data-mount`.|
-| `host_path`       | `string`|               | **Required when `type` = `bind`**: Absolute path of the mount point on the PVE host, example: `"/mnt/pve-storage/data-mount`.|
-| `option_discard`  | `bool`  | `true`        | Enable discart.|
-| `option_lazy_time`| `bool`  | `true`        | Enable lazy time.|
-| `option_no_atime` | `bool`  | `true`        | Enable no atime.|
-| `option_no_device`| `bool`  | `true`        | Enable no device.|
-| `option_no_exec`  | `bool`  | `true`        | Enable no exec.|
-| `option_no_suid`  | `bool`  | `true`        | Enable no suid.|
-| `quota`           | `bool`  | `false`       | Wheter data quota should be enabled. Requires top level `privileged` = `true`. Requires `type` = `data`.|
-| `read_only`       | `bool`  | `false`       | Wheter the mount point is read only.|
-| `replicate`       | `bool`  | `false`       | Wheter replication is enabled on the mount point.|
-| `size`            | `string`|               | **Required when `type` = `data`**: Size of the mount.|
-| `slot`            | `string`|               | **required**: The unique slot id of the mount. Must be prefixed with `mp`, example: `mp0`. Maximum amount of mounts is 256.|
-| `storage`         | `string`|               | **Required when `type` = `data`**: Storage of the mount.|
-| `type`            | `string`| `"data"`      | The type of mount point. Use `"bind"` for a bind mount to the PVE host and  `"data"` for a normal data disk.|
+### Optional
 
-### Mounts Reference
+-> While the following arguments are optional, some have child arguments that are required when using the parent
+argument (e.g. `name` in the `network` attribute). These child arguments have been marked with "__(required)__".
 
-The `mounts` field is used to configure the mount settings. It may only be specified once. `mounts` is mutually exclusive with `mount`. `mounts` has 256 sub items, with each sub item representing a unique slot, example: `mp0`, `mp1`, etc. Every slot has the following configuration options:
+The following arguments may be optionally defined when using this resource:
 
-| Argument | Type    | Default Value | Description |
-|:---------|---------|---------------|:------------|
-| `bind`   | `nested`|               | Bind mount configuration, see [Bind Mounts Reference](#bind-mounts-reference).|
-| `data`   | `nested`|               | Data mount configuration, see [Data Mounts Reference](#data-mounts-reference).|
+* `ostemplate` - The [volume identifier](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_volumes) that points to
+  the OS template or backup file.
+* `arch` - Sets the container OS architecture type. Default is `"amd64"`.
+* `bwlimit` - A number for setting the override I/O bandwidth limit (in KiB/s).
+* `clone` - The lxc vmid to clone
+* `clone_storage` - Target storage for full clone.
+* `cmode` - Configures console mode. `"tty"` tries to open a connection to one of the available tty devices. `"console"`
+  tries to attach to `/dev/console` instead. `"shell"` simply invokes a shell inside the container (no login). Default
+  is `"tty"`.
+* `console` - A boolean to attach a console device to the container. Default is `true`.
+* `cores` - The number of cores assigned to the container. A container can use all available cores by default.
+* `cpulimit` - A number to limit CPU usage by. Default is `0`.
+* `cpuunits` - A number of the CPU weight that the container possesses. Default is `1024`.
+* `description` - Sets the container description seen in the web interface.
+* `features` - An object for allowing the container to access advanced features.
+    * `fuse` - A boolean for enabling FUSE mounts.
+    * `keyctl` - A boolean for enabling the `keyctl()` system call.
+    * `mount` - Defines the filesystem types (separated by semicolons) that are allowed to be mounted.
+    * `nesting` - A boolean to allow nested virtualization.
+* `force` - A boolean that allows the overwriting of pre-existing containers.
+* `full` - When cloning, create a full copy of all disks. This is always done when you clone a normal CT. For CT
+  template it creates a linked clone by default.
+* `hastate` - Requested HA state for the resource. One of "started", "stopped", "enabled", "disabled", or "ignored". See
+  the [docs about HA](https://pve.proxmox.com/pve-docs/chapter-ha-manager.html#ha_manager_resource_config) for more
+  info.
+* `hagroup` - The HA group identifier the resource belongs to (requires `hastate` to be set!). See
+  the [docs about HA](https://pve.proxmox.com/pve-docs/chapter-ha-manager.html#ha_manager_resource_config) for more
+  info.
+* `hookscript` - A string
+  containing [a volume identifier to a script](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_hookscripts_2)
+  that will be executed during various steps throughout the container's lifetime. The script must be an executable file.
+* `hostname` - Specifies the host name of the container.
+* `ignore_unpack_errors` - A boolean that determines if template extraction errors are ignored during container
+  creation.
+* `lock` - A string for locking or unlocking the VM.
+* `memory` - A number containing the amount of RAM to assign to the container (in MB).
+* `mountpoint` - An object for defining a volume to use as a container mount point. Can be specified multiple times.
+    * `mp` __(required)__ - The path to the mount point as seen from inside the container. The path must not contain
+      symlinks for security reasons.
+    * `size` __(required)__ - Size of the underlying volume. Must end in T, G, M, or K (e.g. `"1T"`, `"1G"`, `"1024M"`
+      , `"1048576K"`). Note that this is a read only value.
+    * `slot` __(required)__ - A string containing the number that identifies the mount point (i.e. the `n`
+      in [`mp[n]`](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pct_mount_points)).
+    * `key` __(required)__ - The number that identifies the mount point (i.e. the `n`
+      in [`mp[n]`](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pct_mount_points)).
+    * `storage` __(required)__ - A string containing
+      the [volume](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points)
+      , [directory](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_bind_mount_points),
+      or [device](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_device_mount_points) to be mounted into the
+      container (at the path specified by `mp`). E.g. `local-lvm`, `local-zfs`, `local` etc.
+    * `acl` - A boolean for enabling ACL support. Default is `false`.
+    * `backup` - A boolean for including the mount point in backups. Default is `false`.
+    * `quota` - A boolean for enabling user quotas inside the container for this mount point. Default is `false`.
+    * `replicate` - A boolean for including this volume in a storage replica job. Default is `false`.
+    * `shared` - A boolean for marking the volume as available on all nodes. Default is `false`.
+* `nameserver` - The DNS server IP address used by the container. If neither `nameserver` nor `searchdomain` are
+  specified, the values of the Proxmox host will be used by default.
+* `network` - An object defining a network interface for the container. Can be specified multiple times.
+    * `name` __(required)__ - The name of the network interface as seen from inside the container (e.g. `"eth0"`).
+    * `bridge` - The bridge to attach the network interface to (e.g. `"vmbr0"`).
+    * `firewall` - A boolean to enable the firewall on the network interface.
+    * `gw` - The IPv4 address belonging to the network interface's default gateway.
+    * `gw6` - The IPv6 address of the network interface's default gateway.
+    * `hwaddr` - A string to set a common MAC address with the I/G (Individual/Group) bit not set. Automatically
+      determined if not set.
+    * `ip` - The IPv4 address of the network interface. Can be a static IPv4 address (in CIDR notation), `"dhcp"`,
+      or `"manual"`.
+    * `ip6` - The IPv6 address of the network interface. Can be a static IPv6 address (in CIDR notation), `"auto"`
+      , `"dhcp"`, or `"manual"`.
+    * `mtu` - A string to set the MTU on the network interface.
+    * `rate` - A number that sets rate limiting on the network interface (Mbps).
+    * `tag` - A number that specifies the VLAN tag of the network interface. Automatically determined if not set.
+* `onboot` - A boolean that determines if the container will start on boot. Default is `false`.
+* `ostype` - The operating system type, used by LXC to set up and configure the container. Automatically determined if
+  not set.
+* `password` - Sets the root password inside the container.
+* `pool` - The name of the Proxmox resource pool to add this container to.
+* `protection` - A boolean that enables the protection flag on this container. Stops the container and its disk from
+  being removed/updated. Default is `false`.
+* `restore` - A boolean to mark the container creation/update as a restore task.
+* `rootfs` - An object for configuring the root mount point of the container. Can only be specified once.
+    * `size` __(required)__ - Size of the underlying volume. Must end in T, G, M, or K (e.g. `"1T"`, `"1G"`, `"1024M"`
+      , `"1048576K"`). Note that this is a read only value.
+    * `storage` __(required)__ - A string containing
+      the [volume](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points)
+      , [directory](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_bind_mount_points),
+      or [device](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_device_mount_points) to be mounted into the
+      container (at the path specified by `mp`). E.g. `local-lvm`, `local-zfs`, `local` etc.
+* `searchdomain` - Sets the DNS search domains for the container. If neither `nameserver` nor `searchdomain` are
+  specified, the values of the Proxmox host will be used by default.
+* `ssh_public_keys` - Multi-line string of SSH public keys that will be added to the container. Can be defined
+  using [heredoc syntax](https://www.terraform.io/docs/configuration/expressions/strings.html#heredoc-strings).
+* `start` - A boolean that determines if the container is started after creation. Default is `false`.
+* `startup` -
+  The [startup and shutdown behaviour](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pct_startup_and_shutdown)
+  of the container.
+* `swap` - A number that sets the amount of swap memory available to the container. Default is `512`.
+* `tags` - Tags of the container, semicolon-delimited (e.g. "terraform;test"). This is only meta information.
+* `template` - A boolean that determines if this container is a template.
+* `tty` - A number that specifies the TTYs available to the container. Default is `2`.
+* `unique` - A boolean that determines if a unique random ethernet address is assigned to the container.
+* `unprivileged` - A boolean that makes the container run as an unprivileged user. Default is `false`.
+* `vmid` - A number that sets the VMID of the container. If set to `0`, the next available VMID is used. Default is `0`.
+* `current_node` __(computed)__ - A string that shows on which node the LXC guest exists.|
 
-#### Bind Mounts Reference
+## Attribute Reference
 
-The `bind` field is used to configure a bind moun, And is mutually exclusive with `data`.
-
-| Argument          | Type    | Default Value | Description |
-|:------------------|---------|---------------|:------------|
-| `guest_path`      | `string`|               | **Required**: Absolute path of the mount point inside the container guest, example: `"/mnt/data-mount`.|
-| `host_path`       | `string`|               | **Required**: Absolute path of the mount point on the PVE host, example: `"/mnt/pve-storage/data-mount`.|
-| `option_discard`  | `bool`  | `true`        | Enable discart.|
-| `option_lazy_time`| `bool`  | `true`        | Enable lazy time.|
-| `option_no_atime` | `bool`  | `true`        | Enable no atime.|
-| `option_no_device`| `bool`  | `true`        | Enable no device.|
-| `option_no_exec`  | `bool`  | `true`        | Enable no exec.|
-| `option_no_suid`  | `bool`  | `true`        | Enable no suid.|
-| `read_only`       | `bool`  | `false`       | Wheter the mount point is read only.|
-| `replicate`       | `bool`  | `false`       | Wheter replication is enabled on the mount point.|
-
-#### Data Mounts Reference
-
-The `data` field is used to configure a data mount, And is mutually exclusive with `bind`.
-
-| Argument          | Type    | Default Value | Description |
-|:------------------|---------|---------------|:------------|
-| `acl`             | `string`| `default`     | Mount acl configuration, can be one of `"true"`, `"false"`, `"default"`. Requires top level `privileged` = `true`.|
-| `backup`          | `bool`  | `true`        | Wheter the mount will be included in backup tasks.|
-| `guest_path`      | `string`|               | **Required**: Absolute path of the mount point inside the container guest, example: `"/mnt/data-mount`.|
-| `option_discard`  | `bool`  | `true`        | Enable discart.|
-| `option_lazy_time`| `bool`  | `true`        | Enable lazy time.|
-| `option_no_atime` | `bool`  | `true`        | Enable no atime.|
-| `option_no_device`| `bool`  | `true`        | Enable no device.|
-| `option_no_exec`  | `bool`  | `true`        | Enable no exec.|
-| `option_no_suid`  | `bool`  | `true`        | Enable no suid.|
-| `quota`           | `bool`  | `false`       | Wheter data quota should be enabled. Requires top level `privileged` = `true`.|
-| `read_only`       | `bool`  | `false`       | Wheter the mount point is read only.|
-| `replicate`       | `bool`  | `false`       | Wheter replication is enabled on the mount point.|
-| `size`            | `string`|               | **Required**: Size of the mount.|
-| `storage`         | `string`|               | **Required**: Storage of the mount.|
-
-### Network Reference
-
-The `network` field is used to configure the network interfaces. It may be specified multiple times, each instance requires a unique `id` and `name` value. `network` is mutually exclusive with `networks`.
-
-| Argument        | Type    | Default Value | Description |
-|:----------------|---------|---------------|:------------|
-| `bridge`        | `string`|               | **Required**: Bridge the network interface will be connected to.|
-| `connected`     | `bool`  | `true`        | Wheter the network interface will be connected.|
-| `firewall`      | `bool`  | `false`       | Wheter the network interface will be protected by the firewall.|
-| `id`            | `string`|               | **Required**: The unique id of the network interface. Must be prefixed with `net`, example: `net0`. Maximum amount of network interfaces is 16.|
-| `ipv4_address`  | `string`|               | IPv4 address of the network interface.|
-| `ipv4_dhcp`     | `bool`  | `false`       | Wheter IPv4 DHCP is enabled on the network interface.|
-| `ipv4_gateway`  | `string`|               | IPv4 gateway of the network interface.|
-| `ipv6_address`  | `string`|               | IPv6 address of the network interface.|
-| `ipv6_dhcp`     | `bool`  | `false`       | Wheter IPv6 DHCP is enabled on the network interface.|
-| `ipv6_gateway`  | `string`|               | IPv6 gateway of the network interface.|
-| `mac`           | `string`|               | MAC address of the network interface.|
-| `mtu`           | `int`   |               | MTU of the network interface.|
-| `name`          | `string`|               | **Required**: Name of the network interface inside the guest. The name must be unique example: `eth0`.|
-| `rate_limit`    | `int`   |               | Rate limit of the network interface in Kbit/s. `0` means unlimited.|
-| `slaac`         | `bool`  | `false`       | Wheter SLAAC is enabled on the network interface. Conflicts with IPv6 settings.|
-| `vlan_native`   | `int`   |               | Native VLAN of the network interface.|
-
-### Networks Reference
-
-The `networks` field is used to configure the network interfaces. It may only be specified once. `networks` is mutually exclusive with `network`. `mounts` has 16 sub items, with each sub item representing a unique id, example: `net0`, `net1`, etc. Every slot has the following configuration options:
-
-| Argument     | Type    | Default Value | Description |
-|:-------------|---------|---------------|:------------|
-| `bridge`     | `string`|               | **Required**: Bridge the network interface will be connected to.|
-| `connected`  | `bool`  | `true`        | Wheter the network interface will be connected.|
-| `firewall`   | `bool`  | `false`       | Wheter the network interface will be protected by the firewall.|
-| `ipv4`       | `nested`|               | IPv4 configuration, see [IPv4 Reference](#ipv4-reference).|
-| `ipv6`       | `nested`|               | IPv6 configuration, see [IPv6 Reference](#ipv6-reference).|
-| `mac`        | `string`|               | MAC address of the network interface.|
-| `mtu`        | `int`   |               | MTU of the network interface.|
-| `name`       | `string`|               | **Required**: Name of the network interface inside the guest. The name must be unique example: `eth0`.|
-| `rate_limit` | `int`   |               | Rate limit of the network interface in Kbit/s. `0` means unlimited.|
-| `vlan_native`| `int`   |               | Native VLAN of the network interface.|
-
-#### IPv4 Reference
-
-| Argument     | Type    | Default Value | Description |
-|:-------------|---------|---------------|:------------|
-| `address`    | `string`|               | IPv4 address of the network interface.|
-| `gateway`    | `string`|               | IPv4 gateway of the network interface.|
-| `dhcp`       | `bool`  | `false`       | Wheter IPv4 DHCP is enabled on the network interface. Mutually exclusive with `address` and `gateway`|
-
-#### IPv6 Reference
-
-| Argument     | Type    | Default Value | Description |
-|:-------------|---------|---------------|:------------|
-| `address`    | `string`|               | IPv6 address of the network interface.|
-| `gateway`    | `string`|               | IPv6 gateway of the network interface.|
-| `dhcp`       | `bool`  | `false`       | Wheter IPv6 DHCP is enabled on the network interface. Mutually exclusive with `address`, `gateway` and `slaac`.|
-| `slaac`      | `bool`  | `false`       | Wheter SLAAC is enabled on the network interface. Conflicts with IPv6 settings. Mutually exclusive with `address`, `gateway` and `dhcp`.|
-
-### Startup and Shutdown Reference
-
-The `startup_shutdown` field is used to configure the startup and shutdown settings. It may only be specified once.
-
-| Argument            | Type | Default Value | Description |
-|:--------------------|------|---------------|:------------|
-| `order`             | `int`| `-1`          | Startup order `-1` means any.|
-| `shutdown_timeout`  | `int`| `-1`          | Shutdown timeout in seconds, `-1` means default.|
-| `startup_delay`     | `int`| `-1`          | Startup delay in seconds, `-1` means default.|
+No additional attributes are exported by this resource.
