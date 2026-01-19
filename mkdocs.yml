@@ -1,5 +1,5 @@
 site_name: Docs pages 
-site_url:  https://docs.1xtier.ru/
+site_url:  https://1xtier.github.io/docs/
 theme:
   name: material
   font:
