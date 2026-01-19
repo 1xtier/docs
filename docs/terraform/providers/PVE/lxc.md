@@ -1,8 +1,8 @@
 # LXC Guest Resource
 
-This resource manages a LXC container.
+Этот ресурс управляет контейнером LXC.
 
-To get up and running this is a minimal example:
+Чтобы начать работу, это минимальный пример:
 
 ```hcl
 resource "proxmox_lxc_guest" "minimal-example" {
@@ -45,33 +45,33 @@ resource "proxmox_lxc_guest" "minimal-example" {
 
 | Argument            | Type    | Default Value            | Description |
 |:--------------------|---------|--------------------------|:------------|
-| `clone`             | `nested`|                          | **Forces Recreation**: Clone configuration, see [Clone Reference](#clone-reference).|
-| `cpu_architecture`  | `string`|                          | **Computed**: The CPU architecture.|
-| `cpu`               | `nested`|                          | CPU configuration, see [CPU Reference](#cpu-reference).|
-| `description`       | `string`| `"Managed by Terraform."`| Description of the guest container.|
-| `dns`               | `nested`|                          | DNS configuration, see [DNS Reference](#dns-reference).|
-| `features`          | `nested`|                          | Features configuration, see [Features Reference](#features-reference).|
-| `guest_id`          | `int`   |                          | **Forces Recreation**, **Computed**: The numeric ID of the guest container also known as `vmid`. If not specified, an ID will be automatically assigned.|
-| `memory`            | `int`   | `512`                    | The amount of memory to allocate to the guest in Megabytes.|
-| `mount`             | `array` |                          | Storage mounts configured as individual array items, see [Mount Reference](#mount-reference).|
-| `mounts`            | `nested`|                          | Storage mounts configured as nested sub items, see [Mounts Reference](#mounts-reference).|
-| `name`              | `string`|                          | **Required**: The name of the container.|
-| `network`           | `array` |                          | Network interfaces configured as individual array items, see [Network Reference](#network-reference).|
-| `networks`          | `nested`|                          | Network interfaces configured as nested sub items, see [Networks Reference](#networks-reference).|
-| `os`                | `string`|                          | **Computed**: The name of the OS inside the guest.|
-| `password`          | `string`|                          | **Forces Recreation**, **Sensitive**: The password of the root user inside the guest container.|
-| `pool`              | `string`|                          | The name of the pool the guest container should be a member of.|
-| `power_state`       | `string`| `"running"`              | Power state of the guest, can be `"running"` or `"stopped"`.|
-| `privileged`        | `bool`  |                          | **Forces Recreation**: If the guest is privileged or unprivileged. Can only be `true` or unset. Mutually exclusive with `unprivileged`.|
-| `root_mount`        | `nested`|                          | **Required**: Configuration of the root/boot mount/disk of the guest container. **Note:** Size can only be increased, not decreased.|
-| `ssh_public_key`    | `string`|                          | **Forces Recreation** SSH public key of the root user inside the guest container.|
-| `start_at_node_boot`| `bool`  | `false`                  | Whether the guest should start automatically when the Proxmox node boots.|
-| `startup_shutdown`  | `nested`|                          | Startup and shutdown configuration of the guest, see [Startup and Shutdown Reference](#startup-and-shutdown-reference).|
-| `swap`              | `int`   | `512`                    | Amount of virtual memory of the guest that will b mapped to swap space on the PVE node.|
-| `tags`              | `list`  | `[]`                     | List of tags to assign to the guest container.|
-| `target_node`       | `string`|                          | Single node the guest should be on. If the guest is on a different node it will be migrated to this one.|
-| `target_nodes`      | `array` |                          | List of nodes the guest should be on. If the guest is not on one of these nodes it will be migrated to one of them.|
-| `unprivileged`      | `bool`  |                          | **Forces Recreation**: If the guest is unprivileged or privileged. Can only be `true` or unset. Mutually exclusive with `privileged`.|
+| `clone`             | `nested`|                          | **Принудительное восстановление**: Конфигурация клонирования, см. [Clone Reference](#clone-reference).|
+| `cpu_architecture`  | `string`|                          | **Вычисляемый**: Архитектура центрального процессора.|
+| `cpu`               | `nested`|                          | Конфигурация процессора, смотрите в разделе [CPU Reference](#cpu-reference).|
+| `description`       | `string`| `"Managed by Terraform."`| Описание гостевого контейнера.|
+| `dns`               | `nested`|                          | Конфигурация DNS, смотрите в разделе [DNS Reference](#dns-reference).|
+| `features`          | `nested`|                          | Конфигурация функций, смотрите в разделе [Features Reference](#features-reference).|
+| `guest_id`          | `int`   |                          | **Принудительно восстанавливает**, **Вычисляется**: Числовой идентификатор гостевого контейнера, также известный как "vmid". Если он не указан, идентификатор будет присвоен автоматически.|
+| `memory`            | `int`   | `512`                    | Объем памяти, выделяемой гостю, в мегабайтах.|
+| `mount`             | `array` |                          | Хранилища монтируются как отдельные элементы массива, см. [Mount Reference](#mount-reference).|
+| `mounts`            | `nested`|                          | Монтирование хранилища, настроенное как вложенные вложенные элементы, см. [Mounts Reference](#mounts-reference).|
+| `name`              | `string`|                          | **Обязательно**: название контейнера.|
+| `network`           | `array` |                          | Сетевые интерфейсы, сконфигурированные как отдельные элементы массива, см. [Network Reference](#network-reference).|
+| `networks`          | `nested`|                          | Сетевые интерфейсы, настроенные как вложенные подпункты, см. [Networks Reference](#networks-reference).|
+| `os`                | `string`|                          | **Вычислено**: Название операционной системы внутри гостевой системы.|
+| `password`          | `string`|                          | **Принудительное восстановление**, **Конфиденциально**: Пароль пользователя root внутри гостевого контейнера.|
+| `pool`              | `string`|                          | Имя пула, членом которого должен быть гостевой контейнер.|
+| `power_state`       | `string`| `"running"`              | Состояние питания гостя может быть `запущено" или `остановлено".|
+| `privileged`        | `bool`  |                          | **Forces Recreation**: Является ли гость привилегированным или непривилегированным. Может быть только `true" или "unset". Взаимоисключающие значения "непривилегированный".|
+| `root_mount`        | `nested`|                          | **Требуется**: Настройка корневого/загрузочного диска/диска для установки в гостевой контейнер. **Примечание:** Размер может быть только увеличен, но не уменьшен.|
+| `ssh_public_key`    | `string`|                          | **Forces Recreation** Открытый SSH-ключ пользователя root внутри гостевого контейнера.|
+| `start_at_node_boot`| `bool`  | `false`                  | Должен ли гостевой сервер запускаться автоматически при загрузке узла Proxmox.|
+| `startup_shutdown`  | `nested`|                          | Настройка запуска и выключения гостевой системы приведена в разделе [Startup and Shutdown Reference](#startup-and-shutdown-reference).|
+| `swap`              | `int`   | `512`                    | Объем виртуальной памяти гостя, который будет сопоставлен с пространством подкачки на узле PVE.|
+| `tags`              | `list`  | `[]`                     | Список тегов, которые нужно присвоить гостевому контейнеру.|
+| `target_node`       | `string`|                          | Один узел, на котором должен находиться гость. Если гость находится на другом узле, он будет перенесен на этот.|
+| `target_nodes`      | `array` |                          | Список узлов, на которых должен находиться гость. Если гость не находится ни на одном из этих узлов, он будет перенесен на один из них.|
+| `unprivileged`      | `bool`  |                          | **Forces Recreation**: Если гость является непривилегированным или привилегированным. Может быть только "true" или "unset". Взаимоисключающие с `privileged`.|
 
 ### Clone Reference
 
@@ -80,28 +80,28 @@ resource "proxmox_lxc_guest" "minimal-example" {
 
 | Argument       | Type    | Default Value | Description |
 |:---------------|---------|---------------|:------------|
-| `id`           | `int`   |               | **Forces Recreation**: The numeric ID of the source container to clone from.|
-| `linked`       | `bool`  | `false`       | **Forces Recreation**: Wheter the clone should be a linked clone.|
-| `name`         | `string`|               | **Forces Recreation**: The name of the source container to clone from. Either `id` or `name` must be specified.|
+| `id`           | `int`   |               | **Forces Recreation**: Числовой идентификатор исходного контейнера для клонирования.|
+| `linked`       | `bool`  | `false`       | **Forces Recreation**: Независимо от того, должен ли клон быть связанным.|
+| `name`         | `string`|               | **Forces Recreation**: Имя исходного контейнера для клонирования. Любой `id` или `name` должно быть указано конкретно.|
 
 ### CPU Reference
 
-The `cpu` field is used to configure the CPU settings. It may only be specified once.
+Поле `cpu` поле используется для настройки параметров процессора. Его можно указать только один раз.
 
 | Argument | Type | Default Value | Description |
 |:---------|------|---------------|:------------|
-| `cores`  | `int`| `0`           | Number of CPU cores of the guest, `0` means unlimited.|
-| `limit`  | `int`| `0`           | CPU limit of the guests CPU cores, `0` means unlimited.|
-| `units`  | `int`| `100`         | CPU units of the guest.|
+| `cores`  | `int`| `0`           | Количество процессорных ядер гостевого компьютера, `0` означает неограниченное.|
+| `limit`  | `int`| `0`           | Ограничение по количеству процессорных ядер гостевых процессоров, "0" означает неограниченное количество.|
+| `units`  | `int`| `100`         | Процессорные блоки гостя.|
 
 ### DNS Reference
 
-The `dns` field is used to configure the DNS settings. It may only be specified once.
+Поле `dns` используется для настройки параметров DNS. Его можно указать только один раз.
 
 | Argument      | Type    | Default Value | Description |
 |:--------------|---------|---------------|:------------|
-| `searchdomain`| `string`| `""`          | DNS searchdomain of the guest, inherits the PVE node config when empty.|
-| `nameserver`  | `array` | `[]`          | DNS nameserver of the guest, inherits the PVE node config when empty.|
+| `searchdomain`| `string`| `""`          | DNS-поисковый домен гостя наследует конфигурацию узла PVE, когда он пуст.|
+| `nameserver`  | `array` | `[]`          | DNS-сервер имен гостя наследует конфигурацию узла PVE, когда он пуст.|
 
 ### Features Reference
 
@@ -133,7 +133,7 @@ The `features.unprivileged` field is used to configure the unprivileged feature 
 | `create_device_nodes`| `bool` | `false`       | Whether create device nodes should be enabled.|
 | `fuse`               | `bool` | `false`       | Whether FUSE should be enabled.|
 | `keyctl`             | `bool` | `false`       | Whether keyctl should be enabled.|
-| `nesting`            | `bool` | `false`       | Whether nesting should be enabled.|
+| `nesting`            | `boIf the guest is unprivileged or privileged. Can only be `true` or unset. Mutually exclusive withol` | `false`       | Whether nesting should be enabled.|
 
 ### Mount Reference
 

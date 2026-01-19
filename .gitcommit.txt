@@ -1,3 +1,4 @@
 first-commit
 the first commit for ci/cd
 mkdocs Settings Test
+translated part of the documentation for telmate/proxmox-provider for lxc
