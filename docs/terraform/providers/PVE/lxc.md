@@ -269,6 +269,4 @@ The following arguments may be optionally defined when using this resource:
 * `vmid` - A number that sets the VMID of the container. If set to `0`, the next available VMID is used. Default is `0`.
 * `current_node` __(computed)__ - A string that shows on which node the LXC guest exists.|
 
-## Attribute Reference
-
-No additional attributes are exported by this resource.
+[Ссылка на атрибуты](lxc_guest.md)
