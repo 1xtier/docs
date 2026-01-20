@@ -3,45 +3,45 @@
 Этот ресурс управляет контейнером LXC.
 
 Чтобы начать работу, это минимальный пример:
-
-```hcl
-resource "proxmox_lxc_guest" "minimal-example" {
-    name         = "minimal-example"
-    power_state  = "running"
-    node         = "pve-1"
-    unprivileged = true
-    password     = "yourpassword"
-    template {
-        file    = "alpine-3.22-default_20250617_amd64.tar.xz"
-        storage = "local"
-    }
-    cpu {
-        cores = 1
-    }
-    features {
-        unprivileged {
-            nesting = true
+??? minimal-example
+    ```hcl
+    resource "proxmox_lxc_guest" "minimal-example" {
+        name         = "minimal-example"
+        power_state  = "running"
+        node         = "pve-1"
+        unprivileged = true
+        password     = "yourpassword"
+        template {
+            file    = "alpine-3.22-default_20250617_amd64.tar.xz"
+            storage = "local"
         }
+        cpu {
+            cores = 1
+        }
+        features {
+            unprivileged {
+                nesting = true
+            }
+        }
+        memory = 1024
+        swap   = 512
+        pool   = "my-pool"
+        root_mount {
+            size    = "4G"
+            storage = "local-lvm"
+        }
+        network {
+            id = 0
+            name = "eth0"
+            bridge = "vmbr0"
+            ipv4_address = "192.168.1.100/24"
+            ipv4_gateway = "192.168.1.1"
+        }
+        startup_shutdown {}
     }
-    memory = 1024
-    swap   = 512
-    pool   = "my-pool"
-    root_mount {
-        size    = "4G"
-        storage = "local-lvm"
-    }
-    network {
-        id = 0
-        name = "eth0"
-        bridge = "vmbr0"
-        ipv4_address = "192.168.1.100/24"
-        ipv4_gateway = "192.168.1.1"
-    }
-    startup_shutdown {}
-}
-```
+    ```
 
-## Ссылка на аргумент
+## Ссылки на аргумент
 
 | Argument            | Type    | Default Value            | Description |
 |:--------------------|---------|--------------------------|:------------|
@@ -105,35 +105,35 @@ resource "proxmox_lxc_guest" "minimal-example" {
 
 ### Features Reference
 
-The `features` field is used to configure the feature settings. It may only be specified once.
+Поле  `features` используется для настройки параметров функций. Его можно указать только один раз.
 
 | Argument        | Type    | Default Value | Description |
 |:----------------|---------|---------------|:------------|
-| `privileged`    | `nested`|               | Privileged features configuration, see [Features Privileged Reference](#features-privileged-reference).|
-| `unprivileged`  | `nested`|               | Unprivileged features configuration, see [Features Unprivileged Reference](#features-unprivileged-reference).|
+| `privileged`    | `nested`|               | Настройка привилегированных функций, см. [Features Privileged Reference](#features-privileged-reference).|
+| `unprivileged`  | `nested`|               | Настройка непривилегированных функций, смотрите в разделе [Features Unprivileged Reference](#features-unprivileged-reference).|
 
 #### Features Privileged Reference
 
-The `features.privileged` field is used to configure the privileged feature settings. It may only be specified once. `features.privileged` is mutually exclusive with `features.unprivileged`. Top-level `privileged = true` is required to use this.
+Поле `features.privileged` используется для настройки параметров привилегированных функций. Его можно указать только один раз. `features.privileged`является взаимоисключающим с  `features.unprivileged`. Для его использования требуется `privileged = true` верхнего уровня.
 
 | Argument             | Type   | Default Value | Description |
 |:---------------------|--------|---------------|:------------|
-| `create_device_nodes`| `bool` | `false`       | Whether create device nodes should be enabled.|
+| `create_device_nodes`| `bool` | `false`       | Следует ли включить функцию создания узлов устройств.|
 | `fuse`               | `bool` | `false`       | Whether FUSE should be enabled.|
-| `nesting`            | `bool` | `false`       | Whether nesting should be enabled.|
-| `nfs`                | `bool` | `false`       | Whether NFS should be enabled.|
-| `smb`                | `bool` | `false`       | Whether SMB should be enabled.|
+| `nesting`            | `bool` | `false`       | Следует ли включать вложенность.|
+| `nfs`                | `bool` | `false`       | Следует ли включать NFS.|
+| `smb`                | `bool` | `false`       | Следует ли включать SMB.|
 
 #### Features Unprivileged Reference
 
-The `features.unprivileged` field is used to configure the unprivileged feature settings. It may only be specified once. `features.unprivileged` is mutually exclusive with `features.privileged`. Top-level `unprivileged = true` is required to use this.
+Поле `features.unprivileged` используется для настройки параметров непривилегированных функций. Его можно указать только один раз.  `features.unprivileged` является взаимоисключающим с `features.privileged`. Высший уровень `unprivileged = true` требуется для использования этого.
 
 | Argument             | Type   | Default Value | Description |
 |:---------------------|--------|---------------|:------------|
-| `create_device_nodes`| `bool` | `false`       | Whether create device nodes should be enabled.|
+| `create_device_nodes`| `bool` | `false`       | Следует ли включать функцию создания узлов устройств.|
 | `fuse`               | `bool` | `false`       | Whether FUSE should be enabled.|
-| `keyctl`             | `bool` | `false`       | Whether keyctl should be enabled.|
-| `nesting`            | `boIf the guest is unprivileged or privileged. Can only be `true` or unset. Mutually exclusive withol` | `false`       | Whether nesting should be enabled.|
+| `keyctl`             | `bool` | `false`       | Должен ли быть включен keyctl.|
+| `nesting`            | `boIf the guest is unprivileged or privileged. Can only be `true` or unset. Mutually exclusive withol` | `false`       | Следует ли включать вложенность.|
 
 ### Mount Reference
 

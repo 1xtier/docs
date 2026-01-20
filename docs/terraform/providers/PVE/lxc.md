@@ -1,10 +1,10 @@
-# LXC Resource
+# lxc
 
-This resource creates and manages a Proxmox LXC container.
+Этот ресурс создает контейнер Proxmox LXC и управляет им.
 
-## Example Usage
+## Пример использования
 
-### Basic example
+### Базовый пример
 
 ```hcl
 resource "proxmox_lxc" "basic" {
@@ -28,11 +28,11 @@ resource "proxmox_lxc" "basic" {
 }
 ```
 
-### Multiple mount points
+### Несколько точек монтирования
 
--> By specifying `local-lvm:12` for the `mountpoint.storage` attribute in the first `mountpoint` block below, a volume
-will be automatically created for the LXC container. For more information on this behaviour,
-see [Storage Backed Mount Points](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points).
+-> При указании `local-lvm:12` для атрибута `mountpoint.storage` в первом блоке  `mountpoint` расположенном ниже, том
+будет автоматически создан для контейнера LXC. Для получения дополнительной информации об этом поведении
+см. [Storage Backed Mount Points](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points).
 
 ```hcl
 resource "proxmox_lxc" "multiple_mountpoints" {
@@ -95,7 +95,7 @@ resource "proxmox_lxc" "multiple_mountpoints" {
 }
 ```
 
-### LXC with advanced features enabled
+### LXC с включенными расширенными функциями
 
 ```hcl
 resource "proxmox_lxc" "advanced_features" {
@@ -138,7 +138,7 @@ resource "proxmox_lxc" "advanced_features" {
 }
 ```
 
-### Clone basic example
+### Базовый пример клонирования
 
 ```hcl
 resource "proxmox_lxc" "basic" {
@@ -151,122 +151,118 @@ resource "proxmox_lxc" "basic" {
 
 ## Argument Reference
 
+[Ссылка на атрибуты](lxc_guest.md)
+
 ### Required
 
-The following arguments must be defined when using this resource:
+При использовании этого ресурса должны быть определены следующие аргументы:
 
-* `target_node` - A string containing the cluster node name.
+* `target_node` - Строка, содержащая имя узла кластера.
 
 ### Optional
 
--> While the following arguments are optional, some have child arguments that are required when using the parent
-argument (e.g. `name` in the `network` attribute). These child arguments have been marked with "__(required)__".
+-> Хотя приведенные ниже аргументы являются необязательными, некоторые из них содержат дочерние аргументы, которые требуются при использовании родительского
+аргумента (например, `name` в атрибуте `network` ). Эти дочерние аргументы помечены как "__(required)__".
 
-The following arguments may be optionally defined when using this resource:
+При использовании этого ресурса необязательно могут быть определены следующие аргументы:
 
-* `ostemplate` - The [volume identifier](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_volumes) that points to
-  the OS template or backup file.
-* `arch` - Sets the container OS architecture type. Default is `"amd64"`.
-* `bwlimit` - A number for setting the override I/O bandwidth limit (in KiB/s).
-* `clone` - The lxc vmid to clone
-* `clone_storage` - Target storage for full clone.
-* `cmode` - Configures console mode. `"tty"` tries to open a connection to one of the available tty devices. `"console"`
-  tries to attach to `/dev/console` instead. `"shell"` simply invokes a shell inside the container (no login). Default
-  is `"tty"`.
-* `console` - A boolean to attach a console device to the container. Default is `true`.
-* `cores` - The number of cores assigned to the container. A container can use all available cores by default.
-* `cpulimit` - A number to limit CPU usage by. Default is `0`.
-* `cpuunits` - A number of the CPU weight that the container possesses. Default is `1024`.
-* `description` - Sets the container description seen in the web interface.
-* `features` - An object for allowing the container to access advanced features.
+* `ostemplate` - [volume identifier](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_volumes) который указывает на
+шаблон операционной системы или файл резервной копии.
+* `arch` - Устанавливает тип архитектуры контейнерной операционной системы. По умолчанию используется `amd64`.
+* `bwlimit` - Число для установки ограничения пропускной способности переопределяемого ввода-вывода (in KiB/s).
+* `clone` - Идентификатор lxc vmid для клонирования
+* `clone_storage` - Целевое хранилище для полного клонирования.
+* `cmode` -Настраивает режим консоли. `tty` пытается установить соединение с одним из доступных устройств tty. "console"
+ вместо этого пытается подключиться к `/dev/console`. `shell` просто вызывает оболочку внутри контейнера (без входа в систему). По умолчанию
+используется `tty`.
+* `console` - Логическое значение для подключения консольного устройства к контейнеру. По умолчанию используется значение `true`.
+* `cores` - Количество ядер, назначенных контейнеру. По умолчанию контейнер может использовать все доступные ядра.
+* `cpulimit` - Число, на которое можно ограничить использование процессора. Значение по умолчанию - `0`.
+* `cpuunits` - Количество ресурсов процессора, которыми обладает контейнер. Значение по умолчанию - `1024`.
+* `description` - Задает описание контейнера, отображаемое в веб-интерфейсе.
+* `features` - Объект, позволяющий контейнеру получать доступ к расширенным функциям.
     * `fuse` - A boolean for enabling FUSE mounts.
-    * `keyctl` - A boolean for enabling the `keyctl()` system call.
-    * `mount` - Defines the filesystem types (separated by semicolons) that are allowed to be mounted.
-    * `nesting` - A boolean to allow nested virtualization.
-* `force` - A boolean that allows the overwriting of pre-existing containers.
-* `full` - When cloning, create a full copy of all disks. This is always done when you clone a normal CT. For CT
-  template it creates a linked clone by default.
-* `hastate` - Requested HA state for the resource. One of "started", "stopped", "enabled", "disabled", or "ignored". See
-  the [docs about HA](https://pve.proxmox.com/pve-docs/chapter-ha-manager.html#ha_manager_resource_config) for more
-  info.
-* `hagroup` - The HA group identifier the resource belongs to (requires `hastate` to be set!). See
-  the [docs about HA](https://pve.proxmox.com/pve-docs/chapter-ha-manager.html#ha_manager_resource_config) for more
-  info.
-* `hookscript` - A string
-  containing [a volume identifier to a script](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_hookscripts_2)
-  that will be executed during various steps throughout the container's lifetime. The script must be an executable file.
-* `hostname` - Specifies the host name of the container.
-* `ignore_unpack_errors` - A boolean that determines if template extraction errors are ignored during container
-  creation.
-* `lock` - A string for locking or unlocking the VM.
-* `memory` - A number containing the amount of RAM to assign to the container (in MB).
-* `mountpoint` - An object for defining a volume to use as a container mount point. Can be specified multiple times.
-    * `mp` __(required)__ - The path to the mount point as seen from inside the container. The path must not contain
-      symlinks for security reasons.
-    * `size` __(required)__ - Size of the underlying volume. Must end in T, G, M, or K (e.g. `"1T"`, `"1G"`, `"1024M"`
-      , `"1048576K"`). Note that this is a read only value.
-    * `slot` __(required)__ - A string containing the number that identifies the mount point (i.e. the `n`
-      in [`mp[n]`](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pct_mount_points)).
-    * `key` __(required)__ - The number that identifies the mount point (i.e. the `n`
-      in [`mp[n]`](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pct_mount_points)).
-    * `storage` __(required)__ - A string containing
-      the [volume](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points)
+    * `keyctl` - Логическое значение для включения системного вызова `keyctl()`.
+    * `mount` - Определяет типы файловых систем (разделенные точкой с запятой), которые разрешено монтировать.
+    * `nesting` - Логическое значение, разрешающее вложенную виртуализацию.
+* `force` - Логическое значение, позволяющее перезаписывать ранее существовавшие контейнеры.
+* `full` -При клонировании создайте полную копию всех дисков. Это всегда делается при клонировании обычного CT. Для
+шаблона CT по умолчанию создается связанный клон.
+* `hastate` - идентифицированное состояние HA для ресурса. Одно из значений "запущен", "остановлен", "включен", "отключен" или "игнорируется". Смотрите
+ [docs about HA](https://pve.proxmox.com/pve-docs/chapter-ha-manager.html#ha_manager_resource_config) для получения дополнительной
+информации.
+* `hagroup` - Идентификатор группы HA, к которой принадлежит ресурс (требуется задать значение "hastate"!). Смотрите
+ [docs about HA](https://pve.proxmox.com/pve-docs/chapter-ha-manager.html#ha_manager_resource_config) для получения дополнительной
+информации.
+* `hookscript` -  Строка, содержащая [a volume identifier to a script](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_hookscripts_2)
+  который будет выполняться на различных этапах в течение всего срока службы контейнера. Скрипт должен быть исполняемым файлом.
+* `hostname` - Указывает имя хоста контейнера.
+* `ignore_unpack_errors` - Логическое значение, определяющее, будут ли игнорироваться ошибки извлечения шаблона при
+создании контейнера.
+* `lock` - Строка для блокировки или разблокировки виртуальной машины.
+* `memory` - Число, содержащее объем оперативной памяти, который необходимо назначить контейнеру (в МБ).
+* `mountpoint` - Объект для определения тома, который будет использоваться в качестве точки монтирования контейнера. Может быть указан несколько раз.
+    * `mp` __(required)__ - Путь к точке монтирования, видимый изнутри контейнера. Путь не должен содержать
+символических ссылок по соображениям безопасности.
+    * `size` __(required)__ - Размер базового тома. Должно заканчиваться на T, G, M или K (например, "1T", "1G", "1024M").
+ , `"1048576K"`). Обратите внимание, что это значение доступно только для чтения.
+    * `slot` __(required)__ - Строка, содержащая номер, который идентифицирует точку монтирования (т.е. "n"
+в [`mp[n]`](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pct_mount_points)).
+    * `key` __(required)__ -Номер, который идентифицирует точку монтирования (т.е. "n"
+в [`mp[n]`](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pct_mount_points)).
+    * `storage` __(required)__ - строка, содержащая [volume](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points), [directory](https:/pve.proxmox.com/pve-docs/pve-admin-guide.html#_bind_mount_points),
+      или [device](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_device_mount_points) для установки в
+контейнер (по пути, указанному `mp`). Например, `local-lvm`, `local-zfs`, `local` и т.д.
+    * `acl` - Логическое значение для включения поддержки ACL. По умолчанию используется значение `false`.
+    * `backup` - Логическое значение для включения точки монтирования в резервные копии. Значение по умолчанию - `false`.
+    * `quota` - Логическое значение для включения пользовательских квот внутри контейнера для этой точки монтирования. Значение по умолчанию - `false`.
+    * `replicate` - Логическое значение для включения этого тома в задание реплики хранилища. Значение по умолчанию - `false`.
+    * `shared` - Логическое значение для обозначения тома как доступного на всех узлах. Значение по умолчанию - `false`.
+* `nameserver` - IP-адрес DNS-сервера, используемый контейнером. Если не указаны ни `nameserver`, ни `searchdomain`
+, по умолчанию будут использоваться значения хоста Proxmox.
+* `network` - Объект, определяющий сетевой интерфейс для контейнера. Может быть указан несколько раз.
+    * `name` __(required)__ - Название сетевого интерфейса, видимое изнутри контейнера (например, "eth0").
+    * `bridge` - Мост, к которому подключается сетевой интерфейс (например, "vmbr0").
+    * `firewall` - Логическое значение для включения брандмауэра в сетевом интерфейсе.
+    * `gw` - IPv4-адрес, принадлежащий шлюзу сетевого интерфейса по умолчанию.
+    * `gw6` - IPv6-адрес шлюза сетевого интерфейса по умолчанию.
+    * `hwaddr` - Строка для задания общего MAC-адреса с не заданным битом ввода/вывода (индивидуальный/групповой). 
+Определяется автоматически, если не задан.
+    * `ip` - IPv4-адрес сетевого интерфейса. Может быть статическим IPv4-адресом (в обозначении CIDR), `dhcp`
+или "вручную".
+    * `ip6` - IPv6-адрес сетевого интерфейса. Может быть статическим IPv6-адресом (в обозначении CIDR), `автоматическим"
+ , "dhcp" или "ручным".
+    * `mtu` - Строка для установки MTU в сетевом интерфейсе.
+    * `rate` - Число, устанавливающее ограничение скорости на сетевом интерфейсе (Мбит/с).
+    * `tag` - Номер, который определяет тег VLAN сетевого интерфейса. Определяется автоматически, если не задан.
+* `onboot` - Логическое значение, определяющее, запустится ли контейнер при загрузке. Значение по умолчанию - `false`.
+* `ostype` - Тип операционной системы, используемый LXC для установки и конфигурирования контейнера. Определяется автоматически, если
+не задан.
+* `password` - Устанавливает пароль root внутри контейнера.
+* `pool` - Имя пула ресурсов Proxmox, в который нужно добавить этот контейнер.
+* `protection` - Логическое значение, которое включает флажок защиты для этого контейнера. Блокирует удаление/обновление контейнера и его диска
+. Значение по умолчанию - `false`.
+* `restore` - Логическое значение, обозначающее создание/обновление контейнера как задачу восстановления.
+* `rootfs` - Объект для настройки корневой точки монтирования контейнера. Может быть указан только один раз.
+    * `size` __(required)__ - Размер базового тома. Должно заканчиваться на T, G, M или K (например, `1T`, `1G`, `1024M`,`1048576K`). Обратите внимание, что это значение доступно только для чтения.
+    * `storage` __(required)__ - Строка, содержащая
+      [volume](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points)
       , [directory](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_bind_mount_points),
-      or [device](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_device_mount_points) to be mounted into the
-      container (at the path specified by `mp`). E.g. `local-lvm`, `local-zfs`, `local` etc.
-    * `acl` - A boolean for enabling ACL support. Default is `false`.
-    * `backup` - A boolean for including the mount point in backups. Default is `false`.
-    * `quota` - A boolean for enabling user quotas inside the container for this mount point. Default is `false`.
-    * `replicate` - A boolean for including this volume in a storage replica job. Default is `false`.
-    * `shared` - A boolean for marking the volume as available on all nodes. Default is `false`.
-* `nameserver` - The DNS server IP address used by the container. If neither `nameserver` nor `searchdomain` are
-  specified, the values of the Proxmox host will be used by default.
-* `network` - An object defining a network interface for the container. Can be specified multiple times.
-    * `name` __(required)__ - The name of the network interface as seen from inside the container (e.g. `"eth0"`).
-    * `bridge` - The bridge to attach the network interface to (e.g. `"vmbr0"`).
-    * `firewall` - A boolean to enable the firewall on the network interface.
-    * `gw` - The IPv4 address belonging to the network interface's default gateway.
-    * `gw6` - The IPv6 address of the network interface's default gateway.
-    * `hwaddr` - A string to set a common MAC address with the I/G (Individual/Group) bit not set. Automatically
-      determined if not set.
-    * `ip` - The IPv4 address of the network interface. Can be a static IPv4 address (in CIDR notation), `"dhcp"`,
-      or `"manual"`.
-    * `ip6` - The IPv6 address of the network interface. Can be a static IPv6 address (in CIDR notation), `"auto"`
-      , `"dhcp"`, or `"manual"`.
-    * `mtu` - A string to set the MTU on the network interface.
-    * `rate` - A number that sets rate limiting on the network interface (Mbps).
-    * `tag` - A number that specifies the VLAN tag of the network interface. Automatically determined if not set.
-* `onboot` - A boolean that determines if the container will start on boot. Default is `false`.
-* `ostype` - The operating system type, used by LXC to set up and configure the container. Automatically determined if
-  not set.
-* `password` - Sets the root password inside the container.
-* `pool` - The name of the Proxmox resource pool to add this container to.
-* `protection` - A boolean that enables the protection flag on this container. Stops the container and its disk from
-  being removed/updated. Default is `false`.
-* `restore` - A boolean to mark the container creation/update as a restore task.
-* `rootfs` - An object for configuring the root mount point of the container. Can only be specified once.
-    * `size` __(required)__ - Size of the underlying volume. Must end in T, G, M, or K (e.g. `"1T"`, `"1G"`, `"1024M"`
-      , `"1048576K"`). Note that this is a read only value.
-    * `storage` __(required)__ - A string containing
-      the [volume](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_storage_backed_mount_points)
-      , [directory](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_bind_mount_points),
-      or [device](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_device_mount_points) to be mounted into the
-      container (at the path specified by `mp`). E.g. `local-lvm`, `local-zfs`, `local` etc.
-* `searchdomain` - Sets the DNS search domains for the container. If neither `nameserver` nor `searchdomain` are
-  specified, the values of the Proxmox host will be used by default.
-* `ssh_public_keys` - Multi-line string of SSH public keys that will be added to the container. Can be defined
-  using [heredoc syntax](https://www.terraform.io/docs/configuration/expressions/strings.html#heredoc-strings).
-* `start` - A boolean that determines if the container is started after creation. Default is `false`.
+      или  [device](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_device_mount_points) которые будут установлены в
+контейнер (по пути, указанному в `mp`). Например, `local-lvm`, `local-zfs`, `local` и т.д.
+* `searchdomain` - Устанавливает домены поиска DNS для контейнера. Если не указаны ни `nameserver` , ни `searchdomain`
+, по умолчанию будут использоваться значения хоста Proxmox.
+* `ssh_public_keys` -Многострочная строка открытых ключей SSH, которая будет добавлена в контейнер. Может быть определена
+с помощью [heredoc syntax](https://www.terraform.io/docs/configuration/expressions/strings.html#heredoc-strings).
+* `start` - Логическое значение, определяющее, будет ли запущен контейнер после создания. Значение по умолчанию - `false`.
 * `startup` -
   The [startup and shutdown behaviour](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#pct_startup_and_shutdown)
   of the container.
-* `swap` - A number that sets the amount of swap memory available to the container. Default is `512`.
-* `tags` - Tags of the container, semicolon-delimited (e.g. "terraform;test"). This is only meta information.
-* `template` - A boolean that determines if this container is a template.
-* `tty` - A number that specifies the TTYs available to the container. Default is `2`.
-* `unique` - A boolean that determines if a unique random ethernet address is assigned to the container.
-* `unprivileged` - A boolean that makes the container run as an unprivileged user. Default is `false`.
-* `vmid` - A number that sets the VMID of the container. If set to `0`, the next available VMID is used. Default is `0`.
-* `current_node` __(computed)__ - A string that shows on which node the LXC guest exists.|
-
-[Ссылка на атрибуты](lxc_guest.md)
+* `swap` - Число, задающее объем памяти подкачки, доступной для контейнера. Значение по умолчанию - `512`.
+* `tags` - Теги контейнера, разделенные точкой с запятой (например, "terraform;test"). Это только метаинформация.
+* `template` - Логическое значение, определяющее, является ли этот контейнер шаблоном.
+* `tty` - Число, указывающее количество доступных для контейнера данных. По умолчанию используется значение `2`.
+* `unique` - Логическое значение, определяющее, назначен ли контейнеру уникальный случайный ethernet-адрес.
+* `unprivileged` - Логическое значение, которое позволяет контейнеру запускаться от имени непривилегированного пользователя. Значение по умолчанию - `false`.
+* `vmid` - Число, задающее VMID контейнера. Если задано значение "0", используется следующий доступный VMID. По умолчанию используется значение `0`.
+* `current_node` __(computed)__ - Строка, которая показывает, на каком узле находится гость LXC.|

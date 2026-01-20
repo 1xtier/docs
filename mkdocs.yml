@@ -1,5 +1,8 @@
 site_name: Docs pages 
 site_url:  https://docs.1xtier.ru
+
+repo_name: docs
+repo_url: https://github.com/1xtier/docs
 theme:
   name: material
   font:
@@ -22,11 +25,14 @@ theme:
         name: Dark mode
       primary: indigo
       accent: deep purple
-  
+
 
       
 markdown_extensions:
   - attr_list
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -43,5 +49,3 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
-  - admonition
-  - pymdownx.details
