@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://docs.1xtier.ru/</loc>
+         <lastmod>2026-01-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.1xtier.ru/terraform/providers/PVE/</loc>
+         <lastmod>2026-01-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.1xtier.ru/terraform/providers/PVE/lxc/</loc>
+         <lastmod>2026-01-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.1xtier.ru/terraform/providers/PVE/vm/</loc>
+         <lastmod>2026-01-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.1xtier.ru/terraform/providers/PVE/lib/lxc_guest/</loc>
+         <lastmod>2026-01-23</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.1xtier.ru/terraform/providers/powerdns/powerdns/</loc>
+         <lastmod>2026-01-23</lastmod>
+    </url>
+</urlset>
