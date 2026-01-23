@@ -4,3 +4,5 @@ mkdocs Settings Test
 
 translated part of the documentation for telmate/proxmox-provider for lxc
 Working with the telmate-proxmox provider
+
+CI/cd notification test in telegram

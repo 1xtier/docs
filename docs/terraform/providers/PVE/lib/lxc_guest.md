@@ -137,23 +137,24 @@
 
 ### Mount Reference
 
-The `mount` field is used to configure the mount settings. It may be specified multiple times, each instance requires a unique `slot` value. `mount` is mutually exclusive with `mounts`.
+
+Поле `mount` используется для настройки параметров монтирования. Его можно указать несколько раз, для каждого экземпляра требуется уникальное значение слота. `mount` является взаимоисключающим с `mounts`.
 
 | Argument          | Type    | Default Value | Description |
 |:------------------|---------|---------------|:------------|
-| `acl`             | `string`| `default`     | Mount acl configuration, can be one of `"true"`, `"false"`, `"default"`. Requires `type` = `data`.|
-| `backup`          | `bool`  | `true`        | Wheter the mount will be included in backup tasks.|
-| `guest_path`      | `string`|               | **Required**: Absolute path of the mount point inside the container guest, example: `"/mnt/data-mount`.|
-| `host_path`       | `string`|               | **Required when `type` = `bind`**: Absolute path of the mount point on the PVE host, example: `"/mnt/pve-storage/data-mount`.|
-| `option_discard`  | `bool`  | `true`        | Enable discart.|
+| `acl`             | `string`| `default`     | Смонтируйте конфигурацию acl, может быть одной из «true», «false», «default». Требуется `type` = `data`.|
+| `backup`          | `bool`  | `true`        | Будет ли монтирование включено в задачи резервного копирования. |
+| `guest_path`      | `string`|               | **Required**: Абсолютный путь к точке монтирования внутри гостевого контейнера, пример: `"/mnt/data-mount`.|
+| `host_path`       | `string`|               | **Required when `type` = `bind`**: Абсолютный путь к точке монтирования на хосте PVE, пример: `"/mnt/pve-storage/data-mount`.|
+| `option_discard`  | `bool`  | `true`        | Включить сброс.|
 | `option_lazy_time`| `bool`  | `true`        | Enable lazy time.|
 | `option_no_atime` | `bool`  | `true`        | Enable no atime.|
 | `option_no_device`| `bool`  | `true`        | Enable no device.|
 | `option_no_exec`  | `bool`  | `true`        | Enable no exec.|
 | `option_no_suid`  | `bool`  | `true`        | Enable no suid.|
-| `quota`           | `bool`  | `false`       | Wheter data quota should be enabled. Requires top level `privileged` = `true`. Requires `type` = `data`.|
-| `read_only`       | `bool`  | `false`       | Wheter the mount point is read only.|
-| `replicate`       | `bool`  | `false`       | Wheter replication is enabled on the mount point.|
+| `quota`           | `bool`  | `false`       | Должна ли быть включена квота данных. Требуется верхний уровень `privileged` = `true`. Требуется `type` = `data`.|
+| `read_only`       | `bool`  | `false`       | Доступна ли точка монтирования только для чтения.|
+| `replicate`       | `bool`  | `false`       | Включена ли репликация в точке монтирования.|
 | `size`            | `string`|               | **Required when `type` = `data`**: Size of the mount.|
 | `slot`            | `string`|               | **required**: The unique slot id of the mount. Must be prefixed with `mp`, example: `mp0`. Maximum amount of mounts is 256.|
 | `storage`         | `string`|               | **Required when `type` = `data`**: Storage of the mount.|
