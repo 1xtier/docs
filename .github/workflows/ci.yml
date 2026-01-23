@@ -28,3 +28,9 @@ jobs:
       - name: Добавить CNAME файл для поддомена
         run: echo 'docs.1xtier.ru' > CNAME 
       - run: mkdocs gh-deploy --force
+      - name: send telegram message on push
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: test
